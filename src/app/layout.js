@@ -33,20 +33,13 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        // <Script
-        //   src="https://yash-loader-worker.pushkarnagwekar.workers.dev/?d=saas-nextjs-flax.vercel.app"
-        //   data-api="https://preta-dashboard-phase1.pushkarnagwekar.workers.dev/api"
-        //   data-ctx-endpoint="/users/preta-token"
-        //   data-debug="true"
-        //   strategy="afterInteractive"
-        // />
-  <Script
-  src="https://audiance-loader-worker.pushkarnagwekar.workers.dev/?d=saas-nextjs-flax.vercel.app"
-  data-api="https://preta-dashboard-phase1.pushkarnagwekar.workers.dev/api"
-  data-ctx-endpoint="/users/preta-token"
-  data-debug="true"
-  strategy="afterInteractive"
-/>
+        <Script
+          src="https://audiance-loader-worker.pushkarnagwekar.workers.dev/?d=saas-nextjs-flax.vercel.app"
+          data-api="https://preta-dashboard-phase1.pushkarnagwekar.workers.dev/api"
+          data-ctx-endpoint="/users/preta-token"
+          data-debug="true"
+          strategy="afterInteractive"
+        />
 
         <ThemeProvider
           attribute="class"
