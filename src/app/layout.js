@@ -33,12 +33,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-         <Script
-          src="https://hamza-phase-1.pushkarnagwekar.workers.dev/boot?d=saas-tan-omega.vercel.app"
-          data-api="https://preta-dashboardphasev1-1.pushkarnagwekar.workers.dev/api"
-          data-ctx-endpoint="/api/preta-token"
-          strategy="afterInteractive"
-        />
+          <Script
+  id="preta-loader"
+  src="https://hamza-phase-1.pushkarnagwekar.workers.dev/?d=saas-tan-omega.vercel.app"
+  strategy="afterInteractive"
+  data-api="https://preta-dashboardphasev1-1.pushkarnagwekar.workers.dev/api"
+  data-ctx-endpoint="https://saasify-backend-ps2n.onrender.com/users/preta-token"
+  data-ctx-token-key="saasify_access_token"
+  data-debug="true"
+/>
 
         <ThemeProvider
           attribute="class"
