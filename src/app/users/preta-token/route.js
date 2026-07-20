@@ -21,13 +21,21 @@ export async function GET(request) {
     return Response.json({ token: null }, { status: 401 });
   }
 
+  // Accept the private key as base64 (PRETA_PRIVATE_KEY_B64) OR as a raw PEM
+  // (PRETA_PRIVATE_KEY). Handles escaped newlines that env vars often introduce.
   const b64Key = process.env.PRETA_PRIVATE_KEY_B64;
-  if (!b64Key) {
-    console.error('[preta-token] PRETA_PRIVATE_KEY_B64 env var not set');
+  const rawKey = process.env.PRETA_PRIVATE_KEY;
+  let privateKey;
+  if (b64Key) {
+    privateKey = Buffer.from(b64Key, 'base64').toString('utf8');
+  } else if (rawKey) {
+    privateKey = rawKey.includes('BEGIN')
+      ? rawKey.replace(/\\n/g, '\n')                    // raw PEM (un-escape newlines)
+      : Buffer.from(rawKey, 'base64').toString('utf8'); // base64 stored without the _B64 name
+  } else {
+    console.error('[preta-token] No private key set (PRETA_PRIVATE_KEY_B64 or PRETA_PRIVATE_KEY)');
     return Response.json({ error: 'server misconfigured' }, { status: 500 });
   }
-
-  const privateKey = Buffer.from(b64Key, 'base64').toString('utf8');
 
   const token = jwt.sign(claims, privateKey, {
     algorithm: 'RS256',
