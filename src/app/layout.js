@@ -34,14 +34,14 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <Script
-  id="preta-loader"
-  src="https://loader-v2.pretasystems.com/boot?d=saas-tan-omega.vercel.app"
-  strategy="afterInteractive"
-  data-api="https://app.pretasystems.com/v2/api"
-  data-ctx-endpoint="/users/preta-token"
-  data-ctx-token-key="saasify_access_token"
-  data-debug="true"
-/>
+                id="preta-loader"
+                src="https://loader-v1.pretasystems.com/boot?d=saas-tan-omega.vercel.app"
+                strategy="afterInteractive"
+                data-api="https://app.pretasystems.com/v1/api"
+                data-ctx-endpoint="/users/preta-token"
+                data-ctx-token-key="saasify_access_token"
+                data-debug="true"
+                />
 
         <ThemeProvider
           attribute="class"
