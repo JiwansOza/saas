@@ -117,6 +117,16 @@ const Footer = () => {
                   API
                 </Link>
               </li>
+              <li>
+                {/* Form submissions delivered by Preta, scoped to this site. Here for testing the
+                    delivery pipeline — drop this link before anything goes in front of users. */}
+                <Link
+                  href="/leads2"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Lead2
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="space-y-4">
