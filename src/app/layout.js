@@ -21,18 +21,35 @@ const geistMono = Geist_Mono({
 // the short-lived saasify_access_token and was returning 401 — leaving every
 // personalized element hidden until the user logged in again.
 async function getPretaContext() {
+  let pretaUser = null;
+
   try {
     const raw = (await cookies()).get("saasify_session")?.value;
     if (!raw) return { pretaUser: null, token: null };
-    const session = JSON.parse(decodeURIComponent(raw));
-    const pretaUser = session.pretaUser || null;
-    if (!pretaUser) return { pretaUser: null, token: null };
-    const token = await createPretaContextToken(pretaUser);
-    return { pretaUser, token };
+    pretaUser = JSON.parse(decodeURIComponent(raw)).pretaUser || null;
   } catch (e) {
-    console.error("[Preta] context sign error:", e?.message);
+    console.error("[Preta] session parse error:", e?.message);
     return { pretaUser: null, token: null };
   }
+
+  if (!pretaUser) return { pretaUser: null, token: null };
+
+  // Signing is attempted separately so a failure here does not take pretaUser down with
+  // it. Only the token needs PRETA_PRIVATE_KEY; window.pretaUser drives client-side
+  // targeting on its own. Catching both together meant a missing key silently removed
+  // ALL personalization and left nothing in the page to point at the cause.
+  let token = null;
+  try {
+    token = await createPretaContextToken(pretaUser);
+  } catch (e) {
+    console.error(
+      "[Preta] context sign failed — PRETA_PRIVATE_KEY missing or invalid.",
+      "Rules that require a verified context will not match.",
+      e?.message
+    );
+  }
+
+  return { pretaUser, token };
 }
 
 export default async function RootLayout({ children }) {
