@@ -26,10 +26,32 @@ const PRETA_HOSTS = [
     'https://app.pretasystems.com',
 ];
 
+/**
+ * Test switch, read from the environment so it can be flipped in Vercel without a code change.
+ *
+ * Set CSP_ALLOW_PRETA_SCRIPT=false to drop the Preta hosts from script-src ONLY. That is the
+ * exact failure the onboarding CSP check exists to catch: the tag is still in the page, so an
+ * HTML scrape reports it installed, while the browser refuses to load the script.
+ *
+ * Default is ALLOW, deliberately - a missing or misspelled variable must not silently break
+ * personalisation on a live site. Blocking is something you opt into.
+ *
+ * Note this is a plain server-side variable, NOT NEXT_PUBLIC_: it is only read here, at build
+ * and server start. Changing it in Vercel therefore needs a redeploy to take effect, because
+ * production bakes these headers at build time.
+ *
+ * While it is false the site really does lose personalisation, and the anti-flicker guard in
+ * layout.js hides the page for its full 1.5s timeout before revealing it - the loader that
+ * normally clears the guard never runs. That blink is the symptom, not a bug.
+ *
+ * connect-src deliberately keeps the hosts, so the failure has one cause rather than two.
+ */
+const CSP_ALLOW_PRETA_SCRIPT = process.env.CSP_ALLOW_PRETA_SCRIPT !== 'false';
+
 const csp = [
     "default-src 'self'",
     // 'unsafe-inline' is required by this site's own inline scripts - see the note above.
-    `script-src 'self' 'unsafe-inline' ${PRETA_HOSTS.join(' ')} https://www.googletagmanager.com`,
+    `script-src 'self' 'unsafe-inline'${CSP_ALLOW_PRETA_SCRIPT ? ' ' + PRETA_HOSTS.join(' ') : ''} https://www.googletagmanager.com`,
     `connect-src 'self' ${PRETA_HOSTS.join(' ')} https://*.onrender.com http://localhost:4000 https://www.google-analytics.com`,
     // The loader injects styles for the elements it renders, so inline styles have to be allowed.
     "style-src 'self' 'unsafe-inline'",
