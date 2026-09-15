@@ -94,9 +94,19 @@ export default async function RootLayout({ children }) {
             the window var above, so there is no /users/preta-token fetch to fail. */}
         {!pretaViaGtm && (
           <>
+            {/* Warm the loader connection early. No crossOrigin: a plain <script src> uses a
+                credentialed connection, and a crossorigin preconnect would warm the wrong pool. */}
+            <link rel="preconnect" href="https://loader-v1.pretasystems.com" />
+            {/* Two tags instead of /boot, so the preload scanner starts both with the document
+                and nothing waits on /boot to name them. Order matters: the bundle reads
+                window.PRETA_CONFIG as it initialises, so config must execute first. No async
+                (bundle could run before config) and no defer (runs too late to paint early).
+                data-* belong on the loader tag — the bundle finds them via document.currentScript. */}
+            {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+            <script src="https://loader-v1.pretasystems.com/config?d=saas-tan-omega.vercel.app"></script>
             {/* eslint-disable-next-line @next/next/no-sync-scripts */}
             <script
-              src="https://loader-v1.pretasystems.com/boot?d=saas-tan-omega.vercel.app"
+              src="https://loader-v1.pretasystems.com/l/pretaloader.js?d=saas-tan-omega.vercel.app"
               data-api="https://app.pretasystems.com/v1/api"
               data-ctx-var="__PRETA_CTX__"
               data-debug="true"
