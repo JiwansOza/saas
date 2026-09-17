@@ -4,6 +4,32 @@
 // hides the personalized element. Preta verifies the token with the matching PUBLIC key
 // registered for this SaaSify company in the dashboard (Sign the context JWT → paste key).
 import { SignJWT, importPKCS8 } from "jose";
+import { createHmac } from "node:crypto";
+
+// Keys the opaque `uid`. Same algorithm and secret as saas-backend's pretaUid(), so one user
+// gets one uid whichever of our apps signs the token. Never change it once set: every user's
+// rollout bucket would move.
+const UID_SECRET = process.env.PRETA_UID_SECRET || null;
+
+/**
+ * The ONLY user data that leaves for Preta — built server-side from the session cookie.
+ *
+ * Allow-list, not a spread: the session carries our raw database id (and test logins add a
+ * name), and neither is Preta's business. The id is turned into `uid`, an HMAC Preta cannot
+ * reverse, which it uses to keep one person on the same side of a rollout on every device.
+ * No secret configured → no uid (Preta falls back to a per-browser id); the raw id still
+ * never goes out.
+ */
+export function pretaClaims(sessionUser) {
+  if (!sessionUser || typeof sessionUser !== "object") return null;
+  const { plan, role, has_paid, billing_status, risk_score } = sessionUser;
+  const claims = { plan, role, has_paid, billing_status, risk_score };
+  if (UID_SECRET && sessionUser.id) {
+    claims.uid = "u_" + createHmac("sha256", UID_SECRET).update(String(sessionUser.id)).digest("hex").slice(0, 32);
+  }
+  for (const k of Object.keys(claims)) if (claims[k] === undefined) delete claims[k];
+  return claims;
+}
 
 // PEM may be stored raw (with BEGIN header, \n escaped) or base64 in the env.
 function decodePem(value) {

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { pretaClaims } from '@/lib/preta-token';
 
 export async function GET(request) {
   const cookieHeader = request.headers.get('cookie') || '';
@@ -15,7 +16,8 @@ export async function GET(request) {
     return Response.json({ token: null }, { status: 400 });
   }
 
-  const claims = session.pretaUser || {};
+  // Same allow-list as the layout: no raw database id or name, id → uid.
+  const claims = pretaClaims(session.pretaUser) || {};
 
   if (!claims || Object.keys(claims).length === 0) {
     return Response.json({ token: null }, { status: 401 });

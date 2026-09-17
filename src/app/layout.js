@@ -2,7 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
 import "./globals.css";
 import ClientShell from "@/components/ClientShell";
-import { createPretaContextToken } from "@/lib/preta-token";
+import { createPretaContextToken, pretaClaims } from "@/lib/preta-token";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,7 +26,9 @@ async function getPretaContext() {
   try {
     const raw = (await cookies()).get("saasify_session")?.value;
     if (!raw) return { pretaUser: null, token: null };
-    pretaUser = JSON.parse(decodeURIComponent(raw)).pretaUser || null;
+    // Allow-listed and id → uid (lib/preta-token.js). This object is written into the page as
+    // window.pretaUser AND signed into the token, so nothing it leaves out reaches Preta.
+    pretaUser = pretaClaims(JSON.parse(decodeURIComponent(raw)).pretaUser);
   } catch (e) {
     console.error("[Preta] session parse error:", e?.message);
     return { pretaUser: null, token: null };
